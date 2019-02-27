@@ -13,17 +13,21 @@ class HomeTableViewController: UITableViewController {
     var tweetArray = [NSDictionary]()
     var numberOfTweets: Int!
     
+    let myRefreshControl = UIRefreshControl()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         loadTweets()
         
+        myRefreshControl.addTarget(self, action: #selector(loadTweets), for: .valueChanged)
+        
     }
 
-    func loadTweets() {
+    @objc func loadTweets() {
         
         let myURL = "https://api.twitter.com/1.1/statuses/home_timeline.json"
-        let myParams = ["counts" : 10]
+        let myParams = ["counts" : 20]
         
         TwitterAPICaller.client?.getDictionariesRequest(url: myURL, parameters: myParams, success: { (tweets: [NSDictionary]) in
             
@@ -34,6 +38,7 @@ class HomeTableViewController: UITableViewController {
             }
             
             self.tableView.reloadData()
+            self.myRefreshControl.endRefreshing()
             
         }, failure: { (Error) in
             print("Could Not retreive tweets")
@@ -53,8 +58,8 @@ class HomeTableViewController: UITableViewController {
         
         let user = tweetArray[indexPath.row]["user"] as! NSDictionary
         
-        cell.userNameLabel.text = user["name"] as! String
-        cell.tweetsContent.text = tweetArray[indexPath.row]["text"] as! String
+        cell.userNameLabel.text = (user["name"] as! String)
+        cell.tweetsContent.text = tweetArray[indexPath.row]["text"] as? String
         
         let imageURL = URL(string: ((user["profile_image_url_https"] as? String)!))
         let data = try? Data(contentsOf: imageURL!)
@@ -66,8 +71,12 @@ class HomeTableViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        return 100
+    }
+    
     // MARK: - Table view data source
-
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
