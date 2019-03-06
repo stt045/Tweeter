@@ -17,6 +17,8 @@ class HomeTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = 150
 
         loadTweets()
         
@@ -63,17 +65,14 @@ class HomeTableViewController: UITableViewController {
         
         let imageURL = URL(string: ((user["profile_image_url_https"] as? String)!))
         let data = try? Data(contentsOf: imageURL!)
+        
         if let imageData = data {
             cell.profileImageView.image = UIImage(data: imageData)
         }
         
+        cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
         
         return cell
-    }
-    
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        
-        return 100
     }
     
     // MARK: - Table view data source
