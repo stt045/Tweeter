@@ -17,13 +17,20 @@ class HomeTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        numberOfTweets = 20
+        myRefreshControl.addTarget(self, action: #selector(loadTweets), for: .valueChanged)
+        self.tableView.refreshControl = myRefreshControl
+        self.tableView.allowsSelection = false // disable tableView cell selection
+        
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = 150
 
         loadTweets()
-        
-        myRefreshControl.addTarget(self, action: #selector(loadTweets), for: .valueChanged)
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.loadTweets()
     }
 
     @objc func loadTweets() {
@@ -43,7 +50,7 @@ class HomeTableViewController: UITableViewController {
             self.myRefreshControl.endRefreshing()
             
         }, failure: { (Error) in
-            print("Could Not retreive tweets")
+            print("Could Not retreive tweets: \(Error)")
         })
     }
     
@@ -71,6 +78,8 @@ class HomeTableViewController: UITableViewController {
         }
         
         cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
+        cell.tweetId = tweetArray[indexPath.row]["id"] as! Int
+        cell.setRetweeted(tweetArray[indexPath.row]["retweeted"] as! Bool) 
         
         return cell
     }
